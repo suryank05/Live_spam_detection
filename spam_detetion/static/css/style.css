@@ -1,0 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4;  /* Optional background color */
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #333;  /* Dark background for navbar */
+}
+
+nav {
+    flex: 1;
+    text-align: right;
+}
+
+nav a {
+    color: white;  /* Set link color to white */
+    text-decoration: none;  /* Remove underline */
+    font-weight: 500;  /* Medium font weight */
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+nav a:hover {
+    color: rgb(45, 43, 43);  /* Change color on hover */
+    transform: translateY(-5px);  /* Slightly lift the link */
+}
+
+nav ul {
+    display: inline-block;
+    list-style-type: none;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+/* Optional: Navbar mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    nav {
+        text-align: center;
+        width: 100%;
+    }
+
+    nav ul {
+        width: 100%;
+        display: block;
+        padding: 0;
+    }
+
+    nav ul li {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 10px;  /* Space between items on mobile */
+    }
+}

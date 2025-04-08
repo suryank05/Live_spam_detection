@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spam Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .brutalist-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            width: 169px;
+            height: 60px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            border: 3px solid #fff;
+            outline: 3px solid #000;
+            box-shadow: 6px 6px 0 #00a4ef;
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            padding: 0 15px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hover Animation Effect */
+        .brutalist-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            z-index: 1;
+            opacity: 0;
+        }
+
+        /* Keyframe Animation */
+        @keyframes slide {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .brutalist-button:hover::before {
+            opacity: 1;
+            animation: slide 2s infinite;
+        }
+
+        .brutalist-button:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 10px 10px 0 #000;
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* Active State */
+        .brutalist-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0 #00a4ef;
+            background-color: #fff;
+            color: #000;
+            border-color: #000;
+        }
+
+        /* Centering Container */
+        section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 70vh;
+        }
+
+        /* Optional Margin for Elements */
+        #transcription-box {
+            margin-top: 10px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="frontBg">
+        <h1 style="font-weight:bold; font-size:60px">Trust us we will help you</h1>
+        <p style="font-size:30px">Protecting you before any loss<br>Instant action.</p>
+    </div>
+    <button class="brutalist-button" onclick="startDetection()">
+        Start Detecting!
+    </button>
+
+    <div id="result">
+        <h3>Transcription:</h3>
+        <p id="transcription-text"></p>
+        <h4 id="spam-status"></h4>
+        <h4>Spam Words Found:</h4>
+        <p id="spam-words"></p>
+        <canvas id="spam-chart" width="400" height="400"></canvas> <!-- Canvas for the chart -->
+    </div>
+
+    <script>
+        function startDetection() {
+            fetch('/start-detection')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("transcription-text").textContent = data.transcription;
+
+                        const spamStatus = data.is_spam ? "This message is considered spam." : "This message is not spam.";
+                        document.getElementById("spam-status").textContent = spamStatus;
+
+                        const spamWords = data.spam_words;
+                        document.getElementById("spam-words").textContent = spamWords.length > 0 ? spamWords.join(", ") : "None";
+
+                        // Render the pie chart
+                        renderChart(spamWords);
+                    }
+                });
+        }
+
+        function renderChart(spamWords) {
+            const ctx = document.getElementById('spam-chart').getContext('2d');
+            const spamCounts = {};
+
+            // Count occurrences of each spam word
+            spamWords.forEach(word => {
+                spamCounts[word] = (spamCounts[word] || 0) + 1;
+            });
+
+            const labels = Object.keys(spamCounts);
+            const data = Object.values(spamCounts);
+
+            const chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Spam Words Distribution',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Spam Words Distribution'
+                        }
+                    }
+                }
+            });
+
+            
+            
+        }
+    </script>
+</body>
+</html>
